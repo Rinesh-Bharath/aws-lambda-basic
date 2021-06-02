@@ -1,0 +1,8 @@
+.git
+dist
+*.zip
+node_modules/
+mock/aws.dev.json
+mock/aws.prod.json
+package-lock.json
+log.txt

@@ -1,0 +1,141 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: lambda function
+
+Parameters:
+  OrganisationName:
+    Type: String
+    Description: 'Name of the Organisation - ki-prod / ki-test / ki-dev '
+    AllowedValues:
+    - ki-dev
+    - ki-test
+    - ki-prod
+    Type: String
+  EnvironmentType:
+    Description: The environment type
+    Type: String
+  RepositoryName:
+    Description: Name of the Repository
+    Type: String
+
+Mappings:
+  EnvironmentSpecifics:
+    ki-dev:
+      VPCCIDR: StackSet-AWS-Landing-Zone-Baseline-PrimaryVPC-7847f880-98f9-447a-9121-958ab23c55e3-VPCCIDR
+      Subnet1ACIDR: StackSet-AWS-Landing-Zone-Baseline-PrimaryVPC-7847f880-98f9-447a-9121-958ab23c55e3-PrivateSubnet1AID
+      Subnet2ACIDR: StackSet-AWS-Landing-Zone-Baseline-PrimaryVPC-7847f880-98f9-447a-9121-958ab23c55e3-PrivateSubnet2AID
+      ENVIRONMENT: DEV
+    ki-test:
+      VPCCIDR: StackSet-AWS-Landing-Zone-Baseline-PrimaryVPC-a4ac568c-b10b-429c-91d5-ca3adbfd6935-VPCCIDR
+      Subnet1ACIDR: StackSet-AWS-Landing-Zone-Baseline-PrimaryVPC-a4ac568c-b10b-429c-91d5-ca3adbfd6935-PrivateSubnet1AID
+      Subnet2ACIDR: StackSet-AWS-Landing-Zone-Baseline-PrimaryVPC-a4ac568c-b10b-429c-91d5-ca3adbfd6935-PrivateSubnet2AID
+      ENVIRONMENT: TEST
+    ki-prod:
+      VPCCIDR: StackSet-AWS-Landing-Zone-Baseline-PrimaryVPC-0d950be0-3e1a-450b-8042-4f4f128ece61-VPCCIDR
+      Subnet1ACIDR: StackSet-AWS-Landing-Zone-Baseline-PrimaryVPC-0d950be0-3e1a-450b-8042-4f4f128ece61-PrivateSubnet1AID
+      Subnet2ACIDR: StackSet-AWS-Landing-Zone-Baseline-PrimaryVPC-0d950be0-3e1a-450b-8042-4f4f128ece61-PrivateSubnet2AID
+      ENVIRONMENT: PROD
+    DEV1:
+      NODEENV: production
+      ENVIRONMENT: DEV1
+      MEMORY: 128
+      MONGODBURI: mongodb+srv://test1:kravein@test-4hkqa.mongodb.net/dev1?retryWrites=true
+      ELASTICSEARCHINDEX: kravein_dev1
+      TABLEPLACE: place_DEV1
+      TABLECLAIMANT: claimant_DEV1
+      TABLEFEED: feed_DEV1
+      TABLEPLACEREVIEW: place_review_DEV1
+      TABLESOCIAL: social_DEV1
+      TABLEUSER: user_DEV1
+      SEARCHQ: search_Q
+      NOTIFICATIONARN: arn:aws:sns:us-east-1:881350358275:StackSet-SNS-1696a1d1-2b2f-4308-a8c1-1bc8587cd64f-ContactTopic-5ETRKF8VLOR3
+      SEARCHNOTIFICATIONARN: arn:aws:sns:us-east-1:881350358275:StackSet-SNS-1696a1d1-2b2f-4308-a8c1-1bc8587cd64f-SearchTopic-XINAGA31OTLB
+      ELASTICSEARCHDOMAIN: https://search-stackse-elasti-4h4cz7ywgx80-kcv6pdoqdjmird7ve5m6j6xady.us-east-1.es.amazonaws.com
+    TEST:
+      NODEENV: production
+      ENVIRONMENT: TEST
+      MEMORY: 128
+      MONGODBURI: mongodb+srv://test1:kravein@test-4hkqa.mongodb.net/test?retryWrites=true
+      ELASTICSEARCHINDEX: kravein_test
+      TABLEPLACE: place_TEST
+      TABLECLAIMANT: claimant_TEST
+      TABLEFEED: feed_TEST
+      TABLEPLACEREVIEW: place_review_TEST
+      TABLESOCIAL: social_TEST
+      TABLEUSER: user_TEST
+      SEARCHQ: search_Q
+      NOTIFICATIONARN: arn:aws:sns:us-east-1:561048465573:StackSet-SNS-fd483c7c-f9a6-48bc-911a-3337c38e6594-ContactTopic-152W0SKJGD70Q
+      SEARCHNOTIFICATIONARN: arn:aws:sns:us-east-1:561048465573:StackSet-SNS-fd483c7c-f9a6-48bc-911a-3337c38e6594-SearchTopic-UTFP5NJ0QEMH
+      ELASTICSEARCHDOMAIN: https://search-kravein-es-kgnngjflzh7oxnjjejdkam4nlq.us-east-1.es.amazonaws.com
+      ELASTICSEARCHDOMAIN: https://search-stackse-elasti-1b1dqz1umm2lk-72ihbqptkykcdteziqo5sj3474.us-east-1.es.amazonaws.com
+    PROD:
+      NODEENV: production
+      ENVIRONMENT: PROD
+      MEMORY: 1024
+      MONGODBURI: mongodb+srv://prod:kravein@prod.wwzqd.mongodb.net/prod?retryWrites=true&w=majority
+      ELASTICSEARCHINDEX: kravein_prod
+      TABLEPLACE: place_PROD
+      TABLECLAIMANT: claimant_PROD
+      TABLEFEED: feed_PROD
+      TABLEPLACEREVIEW: place_review_PROD
+      TABLESOCIAL: social_PROD
+      TABLEUSER: user_PROD
+      SEARCHQ: search_Q
+      NOTIFICATIONARN: arn:aws:sns:ap-southeast-2:773827349465:StackSet-SNS-4f34f7f5-2053-4591-b3dd-fd0148e1d9cd-ContactTopic-1DHYFBD3J54B5
+      SEARCHNOTIFICATIONARN: arn:aws:sns:ap-southeast-2:773827349465:StackSet-SNS-4f34f7f5-2053-4591-b3dd-fd0148e1d9cd-SearchTopic-1TBQSSTZMO86M
+      ELASTICSEARCHDOMAIN: https://search-stackse-elasti-1p8jnzm0sn9cw-6cuunna4knfofhrhzj5tpqgszy.ap-southeast-2.es.amazonaws.com
+
+Conditions:
+  CreateProd: !Equals [ !Ref EnvironmentType, GHOST ]
+
+Resources:
+  lambdafunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs12.x
+      CodeUri: .
+      Description: !Ref RepositoryName
+      MemorySize: !FindInMap [EnvironmentSpecifics, !Ref EnvironmentType, "MEMORY"]
+      Timeout: 30
+      Tags:
+        Function-Name: !Ref RepositoryName
+      #Tracing: Active
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub kravein-LambdaSG
+        SubnetIds:
+          - Fn::ImportValue:
+              !FindInMap [EnvironmentSpecifics, !Ref OrganisationName, "Subnet1ACIDR"]
+          - Fn::ImportValue:
+              !FindInMap [EnvironmentSpecifics, !Ref OrganisationName, "Subnet2ACIDR"]
+      Role: !Sub arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole
+      Environment:
+        Variables:
+          NODE_ENV: !FindInMap [EnvironmentSpecifics, !Ref EnvironmentType, "NODEENV"]
+          ENVIRONMENT: !FindInMap [EnvironmentSpecifics, !Ref EnvironmentType, "ENVIRONMENT"]
+          DB_REGION: !Ref AWS::Region
+          SQS_REGION: !Ref AWS::Region
+          SNS_REGION: !Ref AWS::Region
+          EMAIL_REGION: !Ref AWS::Region
+          SEARCH_REGION: !Ref AWS::Region
+          SQS_BASE_URL: !Sub https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/
+          MONGO_DB_URI: !FindInMap [EnvironmentSpecifics, !Ref EnvironmentType, "MONGODBURI"]
+          TABLE_PLACE: !FindInMap [EnvironmentSpecifics, !Ref EnvironmentType, "TABLEPLACE"]
+          TABLE_PLACE_REVIEW: !FindInMap [EnvironmentSpecifics, !Ref EnvironmentType, "TABLEPLACEREVIEW"]
+          TABLE_CLAIMANT: !FindInMap [EnvironmentSpecifics, !Ref EnvironmentType, "TABLECLAIMANT"]
+          TABLE_FEED: !FindInMap [EnvironmentSpecifics, !Ref EnvironmentType, "TABLEFEED"]
+          TABLE_SOCIAL: !FindInMap [EnvironmentSpecifics, !Ref EnvironmentType, "TABLESOCIAL"]
+          TABLE_USER: !FindInMap [EnvironmentSpecifics, !Ref EnvironmentType, "TABLEUSER"]
+          NOTIFICATION_ARN: !FindInMap [EnvironmentSpecifics, !Ref EnvironmentType, "NOTIFICATIONARN"]
+          SEARCH_NOTIFICATION_ARN: !FindInMap [EnvironmentSpecifics, !Ref EnvironmentType, "SEARCHNOTIFICATIONARN"]
+          ELASTICSEARCH_DOMAIN: !FindInMap [EnvironmentSpecifics, !Ref EnvironmentType, "ELASTICSEARCHDOMAIN"]
+          ELASTICSEARCH_INDEX: !FindInMap [EnvironmentSpecifics, !Ref EnvironmentType, "ELASTICSEARCHINDEX"]
+          SEARCH_Q: !FindInMap [EnvironmentSpecifics, !Ref EnvironmentType, "SEARCHQ"]
+          SEARCH_SECURED: true
+
+Outputs:
+  lambdafunction:
+    Value: !GetAtt lambdafunction.Arn
+    Export:
+        Name: !Join ['-',[!Ref RepositoryName, 'kravein', 'ARN']]

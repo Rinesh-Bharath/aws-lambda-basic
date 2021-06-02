@@ -1,0 +1,46 @@
+version: 0.2
+
+env:
+  variables:
+    APPLICATION_NAME: "APPLICATION_NAME"
+    S3_BUCKET_NAME: "S3_BUCKET_NAME"
+    S3_PREFIX: "S3_PREFIX"
+    KMS_KEY: "KMS_KEY"
+    S3_REGION_SECONDARY: "S3_REGION_SECONDARY"
+    S3_BUCKET_NAME_SECONDARY: "S3_BUCKET_NAME_SECONDARY"
+    S3_PREFIX_SECONDARY: "S3_PREFIX_SECONDARY"
+    KMS_KEY_SECONDARY: "KMS_KEY_SECONDARY"
+phases:
+  install:
+    runtime-versions:
+      nodejs: 10
+    commands:
+      - npm install
+      - find ./ -mtime +10950 -exec touch {} \;
+  pre_build:
+    commands:
+      - aws --version
+      - IMAGE_TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
+  build:
+    commands:
+      - npm run build
+      - find ./ -mtime +10950 -exec touch {} \;
+      - echo "built $APPLICATION_NAME-$IMAGE_TAG"
+      - find . -maxdepth 1 ! -name 'template.yml' ! -name 'dist' ! -name . -exec rm -vrf {} +
+      - cp -a dist/. .
+      - rm -rf dist 
+  post_build:
+    commands:
+      - printf '{"tag":"%s"}' $APPLICATION_NAME-$IMAGE_TAG > build.json
+      - aws cloudformation package --template-file template.yml --output-template-file template-output.yml --s3-bucket $S3_BUCKET_NAME --s3-prefix $S3_PREFIX --kms-key-id $KMS_KEY
+      - aws cloudformation package --template-file template.yml --output-template-file template-output-secondary.yml --s3-bucket $S3_BUCKET_NAME_SECONDARY --s3-prefix $S3_PREFIX_SECONDARY --kms-key-id $KMS_KEY_SECONDARY --region $S3_REGION_SECONDARY
+artifacts:
+  secondary-artifacts:
+    primary:
+      files:
+        - build.json
+        - template-output.yml
+    secondary:
+      files:
+        - build.json
+        - template-output-secondary.yml

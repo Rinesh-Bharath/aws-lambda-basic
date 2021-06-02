@@ -1,0 +1,17 @@
+{
+    "extends": "standard",
+    "rules": {
+        "semi":["error", "always"],
+        "camelcase":"off",
+        "comma-dangle":"off",
+        "indent":["error", 2],
+        "prefer-const": ["error", {
+            "destructuring": "any",
+            "ignoreReadBeforeAssign": false
+        }],
+        "import/no-unresolved": [2, { "commonjs": true }],
+        "import/no-absolute-path": [2, { "commonjs": false }],
+        "import/no-self-import":2,
+        "import/no-cycle": [2, { "maxDepth": 1 }]
+    }
+}
