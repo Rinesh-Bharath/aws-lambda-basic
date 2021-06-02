@@ -1,9 +1,8 @@
 {
-	"action": "create_product",
+	"action": "read_product",
 	"body": {
 		"input": {
-			"user_id": "4b6d9b3a-8d4a-4a88-be57-fcd225daab52",
-			"name": "sample product"
+			"product_id": "85034f29-8324-48b9-b617-5ca408e03d9f"
 		}
 	}
 }
