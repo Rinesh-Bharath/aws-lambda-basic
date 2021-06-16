@@ -30,7 +30,7 @@ exports.fetch_one_from_db = async (logging_key, collection_name = '', filter = {
     console.log(logging_key + ' = fetch_from_db initializing ...');
     console.log(logging_key + ' = fetch_from_db params = ' + JSON.stringify({ collection_name, filter, project, options }));
     const collection = await connection.db.collection(collection_name);
-    const resultset_obj = await collection.findOne(filter)
+    const resultset_obj = await collection.findOne(filter);
     console.log(logging_key + ' = fetch_from_db query succeeded');
     return resultset_obj;
   } catch (error) {

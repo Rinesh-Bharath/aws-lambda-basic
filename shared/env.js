@@ -7,7 +7,7 @@ export function set_environment (logging_key = 'nodejs-express', environment = '
   process.env.DB_REGION = 'us-east-1';
   process.env.TABLE_USER = `user_${environment}`;
   process.env.TABLE_PRODUCT = `product_${environment}`;
-  process.env.MONGO_DB_URI = `mongodb+srv://rinesh:mCq6e48TcV6ngQd1@cluster0.4rm65.mongodb.net/${environment}?retryWrites=true`;
+  process.env.MONGO_DB_URI = `mongodb+srv://apiUser:ZN2Le05QSfinUw4w@nodejs-express-1.wsugg.mongodb.net/${environment}?retryWrites=true&w=majority`;
   process.env.JWT_ACCESS_SECRET = 'p@ssw0rd!';
   process.env.JWT_ACCESS_EXPIRES = '1h';
   process.env.JWT_ACCESS_TYPE = 'Bearer';
